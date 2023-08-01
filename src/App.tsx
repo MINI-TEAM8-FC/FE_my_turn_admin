@@ -1,14 +1,13 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import Main from "./pages/Main";
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
+import Login from "./components/login";
 
 const App = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Main />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/main" element={<Main />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
