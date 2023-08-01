@@ -38,7 +38,7 @@ interface ListApplicationResponse {
 
 export const listApplication = async (): Promise<ListApplicationResponse> => {
   try {
-    const response: AxiosResponse<ListApplicationResponse> = await axios.get("https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/user/event/request");
+    const response: AxiosResponse<ListApplicationResponse> = await axios.get("https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/event/request");
     return response.data;
   } catch (error) {
     console.error("오류 발생:", error);
