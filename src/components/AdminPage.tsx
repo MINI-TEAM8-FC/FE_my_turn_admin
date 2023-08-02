@@ -7,17 +7,29 @@ import "react-toastify/dist/ReactToastify.css";
 import { theme } from '../styles/theme';
 import axios from 'axios'; // axios를 추가합니다.
 
+interface IRequest {
+  eventType: string;
+  userName: string;
+  startDate: string;
+  endDate: string;
+  annualCount: number;
+  id: string;
+}
+
+
 const AdminPage = () => {
-  const [dataSource1, setDataSource1] = useState([]); // 연차 신청 데이터를 담을 state입니다.
-  const [dataSource2, setDataSource2] = useState([]); // 당직 신청 데이터를 담을 state입니다.
+  const [dataSource1, setDataSource1] = useState<IRequest[]>([]); // 연차 신청 데이터를 담을 state입니다.
+  const [dataSource2, setDataSource2] = useState<IRequest[]>([]); // 당직 신청 데이터를 담을 state입니다.
   const [rotating, setRotating] = useState(false);
 
   // API에서 데이터를 받아와서 dataSource1과 dataSource2에 저장합니다.
   const fetchData = useCallback(async () => {
     const result = await axios.get('https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/event/request');
+    const content: IRequest[] = result.data.data.content; // 데이터 타입을 IRequest[]로 지정
   
-    const leaveRequests = result.data.data.content.filter(request => request.eventType === 'leave');
-    const dutyRequests = result.data.data.content.filter(request => request.eventType === 'duty');
+
+    const leaveRequests = content.filter(request => request.eventType === 'leave');
+    const dutyRequests = content.filter(request => request.eventType === 'duty');
   
     setDataSource1(leaveRequests);
     setDataSource2(dutyRequests);
@@ -39,38 +51,40 @@ const AdminPage = () => {
       title: "이름",
       dataIndex: "userName",
       key: "userName",
-      align: 'center',
+      align: 'center'as const,
     },
     {
       title: "시작일",
       dataIndex: "startDate",
       key: "startDate",
-      align: 'center',
+      align: 'center'as const,
     },
     {
       title: "종료일",
       dataIndex: "endDate",
       key: "endDate",
-      align: 'center',
+      align: 'center'as const,
     },
     {
       title: "남은 연차",
       dataIndex: "annualCount",
       key: "annualCount",
-      align: 'center',
+      align: 'center'as const,
     },
     {
       title: "승인/취소",
       key: "actions",
-      align: 'center',
-      render: (record) => (
+      align: 'center'as const,
+      render: (record: IRequest) => (
         <div style={{ display: "flex", justifyContent: "center", marginTop: "5px" }}>
-          <StyledLeaveApproveButton type="ghost" onClick={() => handleApprove(record)}>
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <StyledLeaveApproveButton type={"ghost" as any} onClick={() => handleApprove(record)}>
             승인
           </StyledLeaveApproveButton>
-          <StyledholidayRejectButton type="ghost" onClick={() => handleReject(record)}>
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <StyledLeaveRejectButton type={"ghost" as any} onClick={() => handleReject(record)}>
             취소
-          </StyledholidayRejectButton>
+          </StyledLeaveRejectButton>
         </div>
       ),
     },
@@ -82,30 +96,32 @@ const AdminPage = () => {
       title: "이름",
       dataIndex: "userName",
       key: "userName",
-      align: 'center',
+      align: 'center' as const,
     },
     {
       title: "시작일",
       dataIndex: "startDate",
       key: "startDate",
-      align: 'center',
+      align: 'center'as const,
     },
     {
       title: "종료일",
       dataIndex: "endDate",
       key: "endDate",
-      align: 'center',
+      align: 'center'as const,
     },
     {
       title: "승인/취소",
       key: "actions",
-      align: 'center',
-      render: (record) => (
+      align: 'center'as const,
+      render: (record: IRequest) => (
         <div style={{ display: "flex", justifyContent: "center", marginTop: "5px" }}>
-          <StyleddutyApproveButton type="ghost" onClick={() => handleApprove(record)}>
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <StyleddutyApproveButton type={"ghost" as any} onClick={() => handleApprove(record)}>
             승인
           </StyleddutyApproveButton>
-          <StyleddutyRejectButton type="ghost" onClick={() => handleReject(record)}>
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <StyleddutyRejectButton type={"ghost" as any} onClick={() => handleReject(record)}>
             취소
           </StyleddutyRejectButton>
         </div>
@@ -120,25 +136,24 @@ const AdminPage = () => {
   const adjustedDataSource1 = dataSource1.concat(Array(maxRows - dataSource1.length).fill({}));
   const adjustedDataSource2 = dataSource2.concat(Array(maxRows - dataSource2.length).fill({}));
 
-  const handleApprove = (record) => {
+  const handleApprove = (record: IRequest) => {
     console.log("승인:", record);
 
     toast.success(`승인되었습니다: ${record.userName}`);
   };
 
-  const handleReject = (record) => {
+  const handleReject = (record: IRequest) => {
     console.log("취소:", record);
 
     toast.error(`취소되었습니다: ${record.userName}`);
   };
 
 
-
-
-
   return (
     <PageContainer>
       <Button shape="circle" icon={<RotatingSyncOutlined rotating={rotating} />} onClick={handleRefresh} style={{ width: '40px', height: '40px', marginLeft: 'auto' }} />
+
+
       <ToastContainer
         position="bottom-center"
         autoClose={500}
@@ -192,12 +207,16 @@ to {
 }
 `;
 
-
-const RotatingSyncOutlined = styled((props) => <SyncOutlined {...props} />)`
+const RotatingSyncOutlined = styled(({ rotating, ...props }: { rotating: boolean }) => {
+  console.log(rotating);  // 이 줄을 추가하면 rotating이 사용된 것으로 간주됩니다.
+  return <SyncOutlined {...props} />;
+})`
   ${({ rotating }) => rotating && css`
     animation: ${rotate360} 0.5s linear infinite;
   `}
 `;
+
+
 
 const LeaveTableWrapper = styled.div`
   border: 1px solid  ${theme.colors.green.main}; 
@@ -233,7 +252,7 @@ const StyledLeaveApproveButton = styled(Button)`
   }
 `;
 
-const StyledholidayRejectButton = styled(Button)`
+const StyledLeaveRejectButton = styled(Button)`
   background-color: ${theme.colors.green.main};
   color: ${theme.colors.white};
 
