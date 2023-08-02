@@ -1,30 +1,49 @@
-import { useEffect, useState } from 'react';
-import styled from "styled-components";
+import { useEffect, useState, useCallback } from "react";
+import styled , { keyframes, css } from "styled-components";
 import { Table, Button } from "antd";
+import { SyncOutlined } from '@ant-design/icons';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { theme } from '../styles/theme';
 import axios from 'axios'; // axios를 추가합니다.
+import { leaveapproveApplication, leaverejectApplication, dutyapproveApplication, dutyrejectApplication } from "../lib/api/adminApi";
+
+interface IRequest {
+  eventType: string;
+  userName: string;
+  startDate: string;
+  endDate: string;
+  annualCount: number;
+  eventId: string; // API 응답에서 이벤트 식별자를 반환하는 필드의 이름으로 수정
+}
+
 
 const AdminPage = () => {
-  const [dataSource1, setDataSource1] = useState([]); // 연차 신청 데이터를 담을 state입니다.
-  const [dataSource2, setDataSource2] = useState([]); // 당직 신청 데이터를 담을 state입니다.
+  const [dataSource1, setDataSource1] = useState<IRequest[]>([]); // 연차 신청 데이터를 담을 state입니다.
+  const [dataSource2, setDataSource2] = useState<IRequest[]>([]); // 당직 신청 데이터를 담을 state입니다.
+  const [rotating, setRotating] = useState(false);
 
   // API에서 데이터를 받아와서 dataSource1과 dataSource2에 저장합니다.
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await axios.get('https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/event/request');
-      console.log(result.data);  // 추가: API에서 어떤 데이터가 오는지 확인하기 위한 console.log입니다.
+  const fetchData = useCallback(async () => {
+    const result = await axios.get('https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/event/request');
+    const content: IRequest[] = result.data.data.content; // 데이터 타입을 IRequest[]로 지정
   
-      const leaveRequests = result.data.data.content.filter(request => request.eventType === 'leave');
-      const dutyRequests = result.data.data.content.filter(request => request.eventType === 'duty');
+    const leaveRequests = content.filter(request => request.eventType === 'leave');
+    const dutyRequests = content.filter(request => request.eventType === 'duty');
   
-      setDataSource1(leaveRequests);
-      setDataSource2(dutyRequests);
-    }
-  
-    fetchData();
+    setDataSource1(leaveRequests);
+    setDataSource2(dutyRequests);
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleRefresh = () => {
+    setRotating(true);
+    fetchData();
+    setTimeout(() => setRotating(false), 1000);
+  };
 
   // 연차 신청 현황 테이블
   const columns1 = [
@@ -32,33 +51,40 @@ const AdminPage = () => {
       title: "이름",
       dataIndex: "userName",
       key: "userName",
+      align: 'center'as const,
     },
     {
       title: "시작일",
       dataIndex: "startDate",
       key: "startDate",
+      align: 'center'as const,
     },
     {
       title: "종료일",
       dataIndex: "endDate",
       key: "endDate",
+      align: 'center'as const,
     },
     {
       title: "남은 연차",
       dataIndex: "annualCount",
       key: "annualCount",
+      align: 'center'as const,
     },
     {
       title: "승인/취소",
       key: "actions",
-      render: (text, record) => (
+      align: 'center'as const,
+      render: (record: IRequest) => (
         <div style={{ display: "flex", justifyContent: "center", marginTop: "5px" }}>
-          <StyledLeaveApproveButton type="ghost" onClick={() => handleApprove(record)}>
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <StyledLeaveApproveButton type={"ghost" as any} onClick={() => handleLeaveApprove(record)}>
             승인
           </StyledLeaveApproveButton>
-          <StyledholidayRejectButton type="ghost" onClick={() => handleReject(record)}>
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <StyledLeaveRejectButton type={"ghost" as any} onClick={() => handleLeaveReject(record)}>
             취소
-          </StyledholidayRejectButton>
+          </StyledLeaveRejectButton>
         </div>
       ),
     },
@@ -70,26 +96,32 @@ const AdminPage = () => {
       title: "이름",
       dataIndex: "userName",
       key: "userName",
+      align: 'center' as const,
     },
     {
       title: "시작일",
       dataIndex: "startDate",
       key: "startDate",
+      align: 'center'as const,
     },
     {
       title: "종료일",
       dataIndex: "endDate",
       key: "endDate",
+      align: 'center'as const,
     },
     {
       title: "승인/취소",
       key: "actions",
-      render: (record) => (
+      align: 'center'as const,
+      render: (record: IRequest) => (
         <div style={{ display: "flex", justifyContent: "center", marginTop: "5px" }}>
-          <StyleddutyApproveButton type="ghost" onClick={() => handleApprove(record)}>
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <StyleddutyApproveButton type={"ghost" as any} onClick={() => handleDutyApprove(record)}>
             승인
           </StyleddutyApproveButton>
-          <StyleddutyRejectButton type="ghost" onClick={() => handleReject(record)}>
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <StyleddutyRejectButton type={"ghost" as any} onClick={() => handleDutyReject(record)}>
             취소
           </StyleddutyRejectButton>
         </div>
@@ -104,22 +136,80 @@ const AdminPage = () => {
   const adjustedDataSource1 = dataSource1.concat(Array(maxRows - dataSource1.length).fill({}));
   const adjustedDataSource2 = dataSource2.concat(Array(maxRows - dataSource2.length).fill({}));
 
-  const handleApprove = (record) => {
-    console.log("승인:", record);
+
+  const handleLeaveApprove = async (record: IRequest) => {
+    try {
+      console.log('승인 요청:', record.eventId);  // 추가된 줄
+      const response = await leaveapproveApplication(record.eventId); // 승인 API 호출
+      console.log('승인 API 응답:', response);
+
+      toast.success(`승인되었습니다: ${record.userName}`);
+      
+      // 승인 후 데이터 다시 불러오기
+      fetchData();
+
+    } catch (error) {
+      console.error('승인 API 호출 중 오류 발생:', error);
+      toast.error('승인 중 오류가 발생했습니다.');
+    }
+};
+
+const handleLeaveReject = async (record: IRequest) => {
+    try {
+      console.log('거절 요청:', record.eventId);  // 추가된 줄
+      const response = await leaverejectApplication(record.eventId); // 취소 API 호출
+      console.log('거절 API 응답:', response);
+
+      toast.error(`취소되었습니다: ${record.userName}`);
+      
+      // 취소 후 데이터 다시 불러오기
+      fetchData();
+
+    } catch (error) {
+      console.error('거절 API 호출 중 오류 발생:', error);
+      toast.error('거절 중 오류가 발생했습니다.');
+    }
+};
+
+
+
+const handleDutyApprove = async (record: IRequest) => {
+  try {
+    console.log('승인 요청:', record.eventId);  // 추가된 줄
+    const response = await dutyapproveApplication(record.eventId); // 승인 API 호출
+    console.log('승인 API 응답:', response);
 
     toast.success(`승인되었습니다: ${record.userName}`);
-  };
+    
+    // 승인 후 데이터 다시 불러오기
+    fetchData();
 
-  const handleReject = (record) => {
-    console.log("취소:", record);
+  } catch (error) {
+    console.error('승인 API 호출 중 오류 발생:', error);
+    toast.error('승인 중 오류가 발생했습니다.');
+  }
+};
+
+const handleDutyReject = async (record: IRequest) => {
+  try {
+    console.log('거절 요청:', record.eventId);  // 추가된 줄
+    const response = await dutyrejectApplication(record.eventId); // 취소 API 호출
+    console.log('거절 API 응답:', response);
 
     toast.error(`취소되었습니다: ${record.userName}`);
-  };
+    
+    // 취소 후 데이터 다시 불러오기
+    fetchData();
+
+  } catch (error) {
+    console.error('거절 API 호출 중 오류 발생:', error);
+    toast.error('거절 중 오류가 발생했습니다.');
+  }
+};
 
   return (
     <PageContainer>
-      <PageLogoText>My_Turn</PageLogoText>
-
+      <Button shape="circle" icon={<RotatingSyncOutlined rotating={rotating} />} onClick={handleRefresh} style={{ width: '40px', height: '40px', marginLeft: 'auto' }} />
       <ToastContainer
         position="bottom-center"
         autoClose={500}
@@ -149,27 +239,37 @@ const AdminPage = () => {
 
 export default AdminPage;
 
+
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
-`;
-
-const PageLogoText = styled.h1`
-  font-size: 32px;
-  font-weight: bold;
-  margin-bottom: 50px;
-  margin-top: 70px;
-  margin-right: 800px;
+  /* height: 100vh; */
 `;
 
 const Container = styled.div`
-  width: 70%;
   display: flex;
-  justify-content: space-between;
   position: relative;
-  margin-top: 60px;
+  margin-top: 50px;
+`;
+
+// refresh 버튼 회전
+const rotate360 = keyframes`
+from {
+  transform: rotate(0deg);
+}
+to {
+  transform: rotate(180deg);
+}
+`;
+
+const RotatingSyncOutlined = styled(({ rotating, ...props }: { rotating: boolean }) => {
+  console.log(rotating);  // 이 줄을 추가하면 rotating이 사용된 것으로 간주됩니다.
+  return <SyncOutlined {...props} />;
+})`
+  ${({ rotating }) => rotating && css`
+    animation: ${rotate360} 0.5s linear infinite;
+  `}
 `;
 
 const LeaveTableWrapper = styled.div`
@@ -178,6 +278,7 @@ const LeaveTableWrapper = styled.div`
   width: 600px;
   padding: 30px;
   border-radius: 10px;
+  margin-right: 50px;
 `;
 
 const DutyTableWrapper = styled.div`
@@ -186,6 +287,7 @@ const DutyTableWrapper = styled.div`
   width: 600px;
   padding: 30px;
   border-radius: 10px;
+  margin-left: 50px;
 `;
 
 const TableHeader = styled.h2`
@@ -204,7 +306,7 @@ const StyledLeaveApproveButton = styled(Button)`
   }
 `;
 
-const StyledholidayRejectButton = styled(Button)`
+const StyledLeaveRejectButton = styled(Button)`
   background-color: ${theme.colors.green.main};
   color: ${theme.colors.white};
 

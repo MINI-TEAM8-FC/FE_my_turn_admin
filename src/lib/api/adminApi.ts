@@ -45,3 +45,74 @@ export const listApplication = async (): Promise<ListApplicationResponse> => {
     throw error;
   }
 };
+
+
+
+
+interface ApprovalResponse {
+  status: number;
+  msg: string;
+  data: {
+    userId: number;
+    userName: string;
+    userEmail: string;
+    eventType: string;
+    eventId: number;
+    startDate: string;
+    endDate: string;
+    orderState: string;
+  };
+}
+
+export const leaveapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
+  try {
+    const response: AxiosResponse<ApprovalResponse> = await axios.post('https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/leave/approval', {
+      eventId,
+      orderState: 'APPROVED'
+    });
+    return response.data;
+  } catch (error) {
+    console.error("승인 API 호출 중 오류 발생:", error);
+    throw error;
+  }
+};
+
+export const leaverejectApplication = async (eventId: number): Promise<ApprovalResponse> => {
+  try {
+    const response: AxiosResponse<ApprovalResponse> = await axios.post('https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/leave/approval', {
+      eventId,
+      orderState: 'REJECTED'
+    });
+    return response.data;
+  } catch (error) {
+    console.error("거절 API 호출 중 오류 발생:", error);
+    throw error;
+  }
+};
+
+
+export const dutyapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
+  try {
+    const response: AxiosResponse<ApprovalResponse> = await axios.post('https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/duty/approval', {
+      eventId,
+      orderState: 'APPROVED'
+    });
+    return response.data;
+  } catch (error) {
+    console.error("승인 API 호출 중 오류 발생:", error);
+    throw error;
+  }
+};
+
+export const dutyrejectApplication = async (eventId: number): Promise<ApprovalResponse> => {
+  try {
+    const response: AxiosResponse<ApprovalResponse> = await axios.post('https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/duty/approval', {
+      eventId,
+      orderState: 'REJECTED'
+    });
+    return response.data;
+  } catch (error) {
+    console.error("거절 API 호출 중 오류 발생:", error);
+    throw error;
+  }
+};
