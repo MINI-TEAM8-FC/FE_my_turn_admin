@@ -6,6 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { theme } from '../styles/theme';
 import axios from 'axios'; // axios를 추가합니다.
+import { leaveapproveApplication, leaverejectApplication, dutyapproveApplication, dutyrejectApplication } from "../lib/api/adminApi";
 
 interface IRequest {
   eventType: string;
@@ -13,7 +14,7 @@ interface IRequest {
   startDate: string;
   endDate: string;
   annualCount: number;
-  id: string;
+  eventId: string; // API 응답에서 이벤트 식별자를 반환하는 필드의 이름으로 수정
 }
 
 
@@ -27,7 +28,6 @@ const AdminPage = () => {
     const result = await axios.get('https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/event/request');
     const content: IRequest[] = result.data.data.content; // 데이터 타입을 IRequest[]로 지정
   
-
     const leaveRequests = content.filter(request => request.eventType === 'leave');
     const dutyRequests = content.filter(request => request.eventType === 'duty');
   
@@ -78,11 +78,11 @@ const AdminPage = () => {
       render: (record: IRequest) => (
         <div style={{ display: "flex", justifyContent: "center", marginTop: "5px" }}>
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          <StyledLeaveApproveButton type={"ghost" as any} onClick={() => handleApprove(record)}>
+          <StyledLeaveApproveButton type={"ghost" as any} onClick={() => handleLeaveApprove(record)}>
             승인
           </StyledLeaveApproveButton>
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          <StyledLeaveRejectButton type={"ghost" as any} onClick={() => handleReject(record)}>
+          <StyledLeaveRejectButton type={"ghost" as any} onClick={() => handleLeaveReject(record)}>
             취소
           </StyledLeaveRejectButton>
         </div>
@@ -117,11 +117,11 @@ const AdminPage = () => {
       render: (record: IRequest) => (
         <div style={{ display: "flex", justifyContent: "center", marginTop: "5px" }}>
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          <StyleddutyApproveButton type={"ghost" as any} onClick={() => handleApprove(record)}>
+          <StyleddutyApproveButton type={"ghost" as any} onClick={() => handleDutyApprove(record)}>
             승인
           </StyleddutyApproveButton>
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          <StyleddutyRejectButton type={"ghost" as any} onClick={() => handleReject(record)}>
+          <StyleddutyRejectButton type={"ghost" as any} onClick={() => handleDutyReject(record)}>
             취소
           </StyleddutyRejectButton>
         </div>
@@ -136,24 +136,80 @@ const AdminPage = () => {
   const adjustedDataSource1 = dataSource1.concat(Array(maxRows - dataSource1.length).fill({}));
   const adjustedDataSource2 = dataSource2.concat(Array(maxRows - dataSource2.length).fill({}));
 
-  const handleApprove = (record: IRequest) => {
-    console.log("승인:", record);
+
+  const handleLeaveApprove = async (record: IRequest) => {
+    try {
+      console.log('승인 요청:', record.eventId);  // 추가된 줄
+      const response = await leaveapproveApplication(record.eventId); // 승인 API 호출
+      console.log('승인 API 응답:', response);
+
+      toast.success(`승인되었습니다: ${record.userName}`);
+      
+      // 승인 후 데이터 다시 불러오기
+      fetchData();
+
+    } catch (error) {
+      console.error('승인 API 호출 중 오류 발생:', error);
+      toast.error('승인 중 오류가 발생했습니다.');
+    }
+};
+
+const handleLeaveReject = async (record: IRequest) => {
+    try {
+      console.log('거절 요청:', record.eventId);  // 추가된 줄
+      const response = await leaverejectApplication(record.eventId); // 취소 API 호출
+      console.log('거절 API 응답:', response);
+
+      toast.error(`취소되었습니다: ${record.userName}`);
+      
+      // 취소 후 데이터 다시 불러오기
+      fetchData();
+
+    } catch (error) {
+      console.error('거절 API 호출 중 오류 발생:', error);
+      toast.error('거절 중 오류가 발생했습니다.');
+    }
+};
+
+
+
+const handleDutyApprove = async (record: IRequest) => {
+  try {
+    console.log('승인 요청:', record.eventId);  // 추가된 줄
+    const response = await dutyapproveApplication(record.eventId); // 승인 API 호출
+    console.log('승인 API 응답:', response);
 
     toast.success(`승인되었습니다: ${record.userName}`);
-  };
+    
+    // 승인 후 데이터 다시 불러오기
+    fetchData();
 
-  const handleReject = (record: IRequest) => {
-    console.log("취소:", record);
+  } catch (error) {
+    console.error('승인 API 호출 중 오류 발생:', error);
+    toast.error('승인 중 오류가 발생했습니다.');
+  }
+};
+
+const handleDutyReject = async (record: IRequest) => {
+  try {
+    console.log('거절 요청:', record.eventId);  // 추가된 줄
+    const response = await dutyrejectApplication(record.eventId); // 취소 API 호출
+    console.log('거절 API 응답:', response);
 
     toast.error(`취소되었습니다: ${record.userName}`);
-  };
+    
+    // 취소 후 데이터 다시 불러오기
+    fetchData();
 
+  } catch (error) {
+    console.error('거절 API 호출 중 오류 발생:', error);
+    toast.error('거절 중 오류가 발생했습니다.');
+  }
+};
 
   return (
     <PageContainer>
       <Button shape="circle" icon={<RotatingSyncOutlined rotating={rotating} />} onClick={handleRefresh} style={{ width: '40px', height: '40px', marginLeft: 'auto' }} />
-
-
       <ToastContainer
         position="bottom-center"
         autoClose={500}
@@ -215,8 +271,6 @@ const RotatingSyncOutlined = styled(({ rotating, ...props }: { rotating: boolean
     animation: ${rotate360} 0.5s linear infinite;
   `}
 `;
-
-
 
 const LeaveTableWrapper = styled.div`
   border: 1px solid  ${theme.colors.green.main}; 
