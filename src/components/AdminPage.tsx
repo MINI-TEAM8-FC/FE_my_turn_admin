@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import styled from "styled-components";
+import { useEffect, useState, useCallback } from "react";
+import styled , { keyframes, css } from "styled-components";
 import { Table, Button } from "antd";
+import { SyncOutlined } from '@ant-design/icons';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { theme } from '../styles/theme';
@@ -9,22 +10,28 @@ import axios from 'axios'; // axios를 추가합니다.
 const AdminPage = () => {
   const [dataSource1, setDataSource1] = useState([]); // 연차 신청 데이터를 담을 state입니다.
   const [dataSource2, setDataSource2] = useState([]); // 당직 신청 데이터를 담을 state입니다.
+  const [rotating, setRotating] = useState(false);
 
   // API에서 데이터를 받아와서 dataSource1과 dataSource2에 저장합니다.
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await axios.get('https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/event/request');
-      console.log(result.data);  // 추가: API에서 어떤 데이터가 오는지 확인하기 위한 console.log입니다.
+  const fetchData = useCallback(async () => {
+    const result = await axios.get('https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/event/request');
   
-      const leaveRequests = result.data.data.content.filter(request => request.eventType === 'leave');
-      const dutyRequests = result.data.data.content.filter(request => request.eventType === 'duty');
+    const leaveRequests = result.data.data.content.filter(request => request.eventType === 'leave');
+    const dutyRequests = result.data.data.content.filter(request => request.eventType === 'duty');
   
-      setDataSource1(leaveRequests);
-      setDataSource2(dutyRequests);
-    }
-  
-    fetchData();
+    setDataSource1(leaveRequests);
+    setDataSource2(dutyRequests);
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleRefresh = () => {
+    setRotating(true);
+    fetchData();
+    setTimeout(() => setRotating(false), 1000);
+  };
 
   // 연차 신청 현황 테이블
   const columns1 = [
@@ -32,26 +39,31 @@ const AdminPage = () => {
       title: "이름",
       dataIndex: "userName",
       key: "userName",
+      align: 'center',
     },
     {
       title: "시작일",
       dataIndex: "startDate",
       key: "startDate",
+      align: 'center',
     },
     {
       title: "종료일",
       dataIndex: "endDate",
       key: "endDate",
+      align: 'center',
     },
     {
       title: "남은 연차",
       dataIndex: "annualCount",
       key: "annualCount",
+      align: 'center',
     },
     {
       title: "승인/취소",
       key: "actions",
-      render: (text, record) => (
+      align: 'center',
+      render: (record) => (
         <div style={{ display: "flex", justifyContent: "center", marginTop: "5px" }}>
           <StyledLeaveApproveButton type="ghost" onClick={() => handleApprove(record)}>
             승인
@@ -70,20 +82,24 @@ const AdminPage = () => {
       title: "이름",
       dataIndex: "userName",
       key: "userName",
+      align: 'center',
     },
     {
       title: "시작일",
       dataIndex: "startDate",
       key: "startDate",
+      align: 'center',
     },
     {
       title: "종료일",
       dataIndex: "endDate",
       key: "endDate",
+      align: 'center',
     },
     {
       title: "승인/취소",
       key: "actions",
+      align: 'center',
       render: (record) => (
         <div style={{ display: "flex", justifyContent: "center", marginTop: "5px" }}>
           <StyleddutyApproveButton type="ghost" onClick={() => handleApprove(record)}>
@@ -116,10 +132,13 @@ const AdminPage = () => {
     toast.error(`취소되었습니다: ${record.userName}`);
   };
 
+
+
+
+
   return (
     <PageContainer>
-      <PageLogoText>My_Turn</PageLogoText>
-
+      <Button shape="circle" icon={<RotatingSyncOutlined rotating={rotating} />} onClick={handleRefresh} style={{ width: '40px', height: '40px', marginLeft: 'auto' }} />
       <ToastContainer
         position="bottom-center"
         autoClose={500}
@@ -149,27 +168,35 @@ const AdminPage = () => {
 
 export default AdminPage;
 
+
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
-`;
-
-const PageLogoText = styled.h1`
-  font-size: 32px;
-  font-weight: bold;
-  margin-bottom: 50px;
-  margin-top: 70px;
-  margin-right: 800px;
+  /* height: 100vh; */
 `;
 
 const Container = styled.div`
-  width: 70%;
   display: flex;
-  justify-content: space-between;
   position: relative;
-  margin-top: 60px;
+  margin-top: 50px;
+`;
+
+// refresh 버튼 회전
+const rotate360 = keyframes`
+from {
+  transform: rotate(0deg);
+}
+to {
+  transform: rotate(180deg);
+}
+`;
+
+
+const RotatingSyncOutlined = styled((props) => <SyncOutlined {...props} />)`
+  ${({ rotating }) => rotating && css`
+    animation: ${rotate360} 0.5s linear infinite;
+  `}
 `;
 
 const LeaveTableWrapper = styled.div`
@@ -178,6 +205,7 @@ const LeaveTableWrapper = styled.div`
   width: 600px;
   padding: 30px;
   border-radius: 10px;
+  margin-right: 50px;
 `;
 
 const DutyTableWrapper = styled.div`
@@ -186,6 +214,7 @@ const DutyTableWrapper = styled.div`
   width: 600px;
   padding: 30px;
   border-radius: 10px;
+  margin-left: 50px;
 `;
 
 const TableHeader = styled.h2`
