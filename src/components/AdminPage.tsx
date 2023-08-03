@@ -14,9 +14,8 @@ interface IRequest {
   startDate: string;
   endDate: string;
   annualCount: number;
-  eventId: string; // API 응답에서 이벤트 식별자를 반환하는 필드의 이름으로 수정
+  eventId: number; // API 응답에서 이벤트 식별자를 반환하는 필드의 이름으로 수정
 }
-
 
 const AdminPage = () => {
   const [dataSource1, setDataSource1] = useState<IRequest[]>([]); // 연차 신청 데이터를 담을 state입니다.
@@ -139,73 +138,67 @@ const AdminPage = () => {
 
   const handleLeaveApprove = async (record: IRequest) => {
     try {
-      console.log('승인 요청:', record.eventId);  // 추가된 줄
-      const response = await leaveapproveApplication(record.eventId); // 승인 API 호출
+      console.log('승인 요청:', record.eventId);  
+      const response = await leaveapproveApplication(record.eventId); 
       console.log('승인 API 응답:', response);
-
+  
       toast.success(`승인되었습니다: ${record.userName}`);
-      
-      // 승인 후 데이터 다시 불러오기
-      fetchData();
-
+        
+      // 승인 후 데이터 바로 반영
+      setDataSource1(prevData => prevData.filter(item => item.eventId !== record.eventId));
     } catch (error) {
       console.error('승인 API 호출 중 오류 발생:', error);
       toast.error('승인 중 오류가 발생했습니다.');
     }
-};
-
-const handleLeaveReject = async (record: IRequest) => {
+  };
+  
+  const handleLeaveReject = async (record: IRequest) => {
     try {
-      console.log('거절 요청:', record.eventId);  // 추가된 줄
-      const response = await leaverejectApplication(record.eventId); // 취소 API 호출
+      console.log('거절 요청:', record.eventId);  
+      const response = await leaverejectApplication(record.eventId);
       console.log('거절 API 응답:', response);
-
+  
       toast.error(`취소되었습니다: ${record.userName}`);
-      
-      // 취소 후 데이터 다시 불러오기
-      fetchData();
-
+        
+      // 취소 후 데이터 바로 반영
+      setDataSource1(prevData => prevData.filter(item => item.eventId !== record.eventId));
     } catch (error) {
       console.error('거절 API 호출 중 오류 발생:', error);
       toast.error('거절 중 오류가 발생했습니다.');
     }
-};
-
-
-
-const handleDutyApprove = async (record: IRequest) => {
-  try {
-    console.log('승인 요청:', record.eventId);  // 추가된 줄
-    const response = await dutyapproveApplication(record.eventId); // 승인 API 호출
-    console.log('승인 API 응답:', response);
-
-    toast.success(`승인되었습니다: ${record.userName}`);
-    
-    // 승인 후 데이터 다시 불러오기
-    fetchData();
-
-  } catch (error) {
-    console.error('승인 API 호출 중 오류 발생:', error);
-    toast.error('승인 중 오류가 발생했습니다.');
-  }
-};
-
-const handleDutyReject = async (record: IRequest) => {
-  try {
-    console.log('거절 요청:', record.eventId);  // 추가된 줄
-    const response = await dutyrejectApplication(record.eventId); // 취소 API 호출
-    console.log('거절 API 응답:', response);
-
-    toast.error(`취소되었습니다: ${record.userName}`);
-    
-    // 취소 후 데이터 다시 불러오기
-    fetchData();
-
-  } catch (error) {
-    console.error('거절 API 호출 중 오류 발생:', error);
-    toast.error('거절 중 오류가 발생했습니다.');
-  }
-};
+  };
+  
+  const handleDutyApprove = async (record: IRequest) => {
+    try {
+      console.log('승인 요청:', record.eventId);  
+      const response = await dutyapproveApplication(record.eventId); 
+      console.log('승인 API 응답:', response);
+  
+      toast.success(`승인되었습니다: ${record.userName}`);
+        
+      // 승인 후 데이터 바로 반영
+      setDataSource2(prevData => prevData.filter(item => item.eventId !== record.eventId));
+    } catch (error) {
+      console.error('승인 API 호출 중 오류 발생:', error);
+      toast.error('승인 중 오류가 발생했습니다.');
+    }
+  };
+  
+  const handleDutyReject = async (record: IRequest) => {
+    try {
+      console.log('거절 요청:', record.eventId);  
+      const response = await dutyrejectApplication(record.eventId); 
+      console.log('거절 API 응답:', response);
+  
+      toast.error(`취소되었습니다: ${record.userName}`);
+        
+      // 취소 후 데이터 바로 반영
+      setDataSource2(prevData => prevData.filter(item => item.eventId !== record.eventId));
+    } catch (error) {
+      console.error('거절 API 호출 중 오류 발생:', error);
+      toast.error('거절 중 오류가 발생했습니다.');
+    }
+  };
 
   return (
     <PageContainer>
@@ -225,12 +218,12 @@ const handleDutyReject = async (record: IRequest) => {
       <Container>
         <LeaveTableWrapper>
           <TableHeader>연차 신청 현황</TableHeader>
-          <Table dataSource={adjustedDataSource1} columns={columns1} rowKey="id" />
+          <Table dataSource={adjustedDataSource1} columns={columns1} rowKey="eventId" />
         </LeaveTableWrapper>
 
         <DutyTableWrapper>
           <TableHeader>당직 신청 현황</TableHeader>
-          <Table dataSource={adjustedDataSource2} columns={columns2} rowKey="id"/>
+          <Table dataSource={adjustedDataSource2} columns={columns2} rowKey="eventId"/>
         </DutyTableWrapper>
       </Container>
     </PageContainer>
