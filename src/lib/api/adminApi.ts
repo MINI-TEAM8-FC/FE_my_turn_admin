@@ -38,16 +38,15 @@ interface ListApplicationResponse {
 
 export const listApplication = async (): Promise<ListApplicationResponse> => {
   try {
-    const response: AxiosResponse<ListApplicationResponse> = await axios.get("https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/event/request");
+    const response: AxiosResponse<ListApplicationResponse> = await axios.get(
+      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/event/request"
+    );
     return response.data;
   } catch (error) {
     console.error("오류 발생:", error);
     throw error;
   }
 };
-
-
-
 
 interface ApprovalResponse {
   status: number;
@@ -66,10 +65,13 @@ interface ApprovalResponse {
 
 export const leaveapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
   try {
-    const response: AxiosResponse<ApprovalResponse> = await axios.post('https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/leave/approval', {
-      eventId,
-      orderState: 'APPROVED'
-    });
+    const response: AxiosResponse<ApprovalResponse> = await axios.post(
+      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/leave/approval",
+      {
+        eventId,
+        orderState: "APPROVED",
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("승인 API 호출 중 오류 발생:", error);
@@ -79,10 +81,13 @@ export const leaveapproveApplication = async (eventId: number): Promise<Approval
 
 export const leaverejectApplication = async (eventId: number): Promise<ApprovalResponse> => {
   try {
-    const response: AxiosResponse<ApprovalResponse> = await axios.post('https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/leave/approval', {
-      eventId,
-      orderState: 'REJECTED'
-    });
+    const response: AxiosResponse<ApprovalResponse> = await axios.post(
+      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/leave/approval",
+      {
+        eventId,
+        orderState: "REJECTED",
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("거절 API 호출 중 오류 발생:", error);
@@ -90,13 +95,15 @@ export const leaverejectApplication = async (eventId: number): Promise<ApprovalR
   }
 };
 
-
 export const dutyapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
   try {
-    const response: AxiosResponse<ApprovalResponse> = await axios.post('https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/duty/approval', {
-      eventId,
-      orderState: 'APPROVED'
-    });
+    const response: AxiosResponse<ApprovalResponse> = await axios.post(
+      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/duty/approval",
+      {
+        eventId,
+        orderState: "APPROVED",
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("승인 API 호출 중 오류 발생:", error);
@@ -106,10 +113,13 @@ export const dutyapproveApplication = async (eventId: number): Promise<ApprovalR
 
 export const dutyrejectApplication = async (eventId: number): Promise<ApprovalResponse> => {
   try {
-    const response: AxiosResponse<ApprovalResponse> = await axios.post('https://b79e656d-ef86-45fe-a5cb-a112eafd50a8.mock.pstmn.io/admin/duty/approval', {
-      eventId,
-      orderState: 'REJECTED'
-    });
+    const response: AxiosResponse<ApprovalResponse> = await axios.post(
+      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/duty/approval",
+      {
+        eventId,
+        orderState: "REJECTED",
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("거절 API 호출 중 오류 발생:", error);
