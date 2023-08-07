@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { theme } from "../styles/theme";
 import axios from "axios"; // axios를 추가합니다.
 import {
+  listApplication,
   leaveapproveApplication,
   leaverejectApplication,
   dutyapproveApplication,
@@ -17,9 +18,10 @@ interface IRequest {
   eventType: string;
   userName: string;
   startDate: string;
-  endDate: string;
+  endDate?: string;
   annualCount: number;
   eventId: number; // API 응답에서 이벤트 식별자를 반환하는 필드의 이름으로 수정
+  orderState: string; // Added field
 }
 
 const AdminPage = () => {
@@ -30,11 +32,11 @@ const AdminPage = () => {
 
   // API에서 데이터를 받아와서 dataSource1과 dataSource2에 저장합니다.
   const fetchData = useCallback(async (page) => {
-    const result = await axios.get("https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/event/request");
-    const content: IRequest[] = result.data.data.content; // 데이터 타입을 IRequest[]로 지정
+    const result = await listApplication();
+    const content: IRequest[] = result.data.content; // API 응답의 content 필드에 접근합니다.
 
-    const leaveRequests = content.filter((request) => request.eventType === "leave");
-    const dutyRequests = content.filter((request) => request.eventType === "duty");
+    const leaveRequests = content.filter((request) => request.eventType === "LEAVE");
+    const dutyRequests = content.filter((request) => request.eventType === "DUTY");
 
     setDataSource1(leaveRequests);
     setDataSource2(dutyRequests);

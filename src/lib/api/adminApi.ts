@@ -39,11 +39,11 @@ interface ListApplicationResponse {
 export const listApplication = async (): Promise<ListApplicationResponse> => {
   try {
     const response: AxiosResponse<ListApplicationResponse> = await axios.get(
-      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/event/request"
+      "http://myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com/admin/event/request"
     );
     return response.data;
   } catch (error) {
-    console.error("오류 발생:", error);
+    console.error("Error:", error);
     throw error;
   }
 };
@@ -66,7 +66,7 @@ interface ApprovalResponse {
 export const leaveapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
   try {
     const response: AxiosResponse<ApprovalResponse> = await axios.post(
-      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/leave/approval",
+      "http://myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com/admin/leave/approval",
       {
         eventId,
         orderState: "APPROVED",
@@ -74,7 +74,7 @@ export const leaveapproveApplication = async (eventId: number): Promise<Approval
     );
     return response.data;
   } catch (error) {
-    console.error("승인 API 호출 중 오류 발생:", error);
+    console.error("Error during approval API call:", error);
     throw error;
   }
 };
@@ -82,7 +82,7 @@ export const leaveapproveApplication = async (eventId: number): Promise<Approval
 export const leaverejectApplication = async (eventId: number): Promise<ApprovalResponse> => {
   try {
     const response: AxiosResponse<ApprovalResponse> = await axios.post(
-      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/leave/approval",
+      "http://myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com/admin/leave/approval",
       {
         eventId,
         orderState: "REJECTED",
@@ -98,7 +98,7 @@ export const leaverejectApplication = async (eventId: number): Promise<ApprovalR
 export const dutyapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
   try {
     const response: AxiosResponse<ApprovalResponse> = await axios.post(
-      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/duty/approval",
+      "http://myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com/admin/duty/approval",
       {
         eventId,
         orderState: "APPROVED",
@@ -114,7 +114,7 @@ export const dutyapproveApplication = async (eventId: number): Promise<ApprovalR
 export const dutyrejectApplication = async (eventId: number): Promise<ApprovalResponse> => {
   try {
     const response: AxiosResponse<ApprovalResponse> = await axios.post(
-      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/duty/approval",
+      "http://myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com/admin/duty/approval",
       {
         eventId,
         orderState: "REJECTED",
