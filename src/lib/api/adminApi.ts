@@ -10,7 +10,7 @@ const api = axios.create({
 
 // 로그인 api
 export const login = async (email: string, password: string) => {
-  const response = await api.post("/admin/login", { email, password });
+  const response = await api.post("/user/login", { email, password });
   if (response.data.status === 200) {
     // 토큰을 localStorage에 저장
     localStorage.setItem("token", response.data.data.token);
@@ -26,10 +26,10 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// export const logout = () => {
-//   localStorage.removeItem("token");
-//   // 필요하면 페이지 리다이렉트 처리 등
-// };
+export const logout = () => {
+  localStorage.removeItem("token");
+  // 필요하면 페이지 리다이렉트 처리 등
+};
 
 interface ApplicationData {
   userEmail: string;
