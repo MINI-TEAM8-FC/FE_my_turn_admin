@@ -1,5 +1,4 @@
 import axios from "axios";
-// import { AxiosResponse } from "axios";
 
 const api = axios.create({
   baseURL: "http://Myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com",
@@ -13,7 +12,7 @@ export const login = async (email: string, password: string) => {
   const response = await api.post("/user/login", { email, password });
   if (response.data.status === 200) {
     // 토큰을 localStorage에 저장
-    localStorage.setItem("token", response.data.data.token);
+    localStorage.setItem("token", response.data.data.accessToken);
   }
   return response.data;
 };
@@ -28,10 +27,10 @@ api.interceptors.request.use((config) => {
 
 export const logout = () => {
   localStorage.removeItem("token");
-  // 필요하면 페이지 리다이렉트 처리 등
 };
 
 interface ApplicationData {
+  userId: number;
   userEmail: string;
   eventId: number;
   userName: string;
@@ -42,7 +41,7 @@ interface ApplicationData {
   orderState: string;
   imgUrl: string;
   createdAt: string;
-  annualCount: number; // 'annualCount'가 숫자형(number)인 것으로 가정
+  annualCount?: number;
 }
 
 interface ListApplicationResponse {
@@ -93,6 +92,17 @@ interface ApprovalResponse {
   };
 }
 
+// 공통된 로직을 처리하기 위한 helper function
+const postApproval = async (path: string, eventId: number, orderState: string): Promise<ApprovalResponse> => {
+  try {
+    const response = await api.post(path, { eventId, orderState });
+    return response.data;
+  } catch (error) {
+    console.error(`Error during ${orderState} API call:`, error);
+    throw error;
+  }
+};
+
 // 연차&당직 승인, 취소 api
 export const leaveapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
   return postApproval("/admin/leave/approval", eventId, "APPROVED");
@@ -108,17 +118,6 @@ export const dutyapproveApplication = async (eventId: number): Promise<ApprovalR
 
 export const dutyrejectApplication = async (eventId: number): Promise<ApprovalResponse> => {
   return postApproval("/admin/duty/approval", eventId, "REJECTED");
-};
-
-// 공통된 로직을 처리하기 위한 helper function
-const postApproval = async (path: string, eventId: number, orderState: string): Promise<ApprovalResponse> => {
-  try {
-    const response = await api.post(path, { eventId, orderState });
-    return response.data;
-  } catch (error) {
-    console.error(`Error during ${orderState} API call:`, error);
-    throw error;
-  }
 };
 
 // export const leaveapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
