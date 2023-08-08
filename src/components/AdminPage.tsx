@@ -5,8 +5,9 @@ import { SyncOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { theme } from "../styles/theme";
-import axios from "axios"; // axios를 추가합니다.
+// import axios from "axios"; // axios를 추가합니다.
 import {
+  listApplication,
   leaveapproveApplication,
   leaverejectApplication,
   dutyapproveApplication,
@@ -14,12 +15,15 @@ import {
 } from "../lib/api/adminApi";
 
 interface IRequest {
+  userId: number;
+  userEmail: string;
   eventType: string;
   userName: string;
   startDate: string;
-  endDate: string;
-  annualCount: number;
+  endDate?: string;
+  annualCount?: number;
   eventId: number; // API 응답에서 이벤트 식별자를 반환하는 필드의 이름으로 수정
+  orderState: string; // Added field
 }
 
 const AdminPage = () => {
@@ -28,17 +32,86 @@ const AdminPage = () => {
   const [rotating, setRotating] = useState(false);
   const [page, setPage] = useState(1);
 
+  // // 새로 작성
+  // const fetchData = useCallback(async (page) => {
+  //   try {
+  //     // API 호출
+  //     const response = await listApplication();
+  //     console.log(response); // API 응답 확인
+  //     console.log("API response Data:", response.data);
+  //     console.log("API response:", response);
+  //     // 응답의 유효성 검사
+  //     if (!response || !Array.isArray(response.data)) {
+  //       console.error("Invalid API response format");
+  //       return;
+  //     }
+
+  //     // 데이터 필터링
+  //     const leaveRequests = response.data.filter((request) => request.eventType === "LEAVE");
+  //     const dutyRequests = response.data.filter((request) => request.eventType === "DUTY");
+
+  //     // 상태 업데이트
+  //     setDataSource1(leaveRequests);
+  //     setDataSource2(dutyRequests);
+
+  //     // 디버깅을 위한 로깅
+  //     console.log("Leave Requests:", leaveRequests);
+  //     console.log("Duty Requests:", dutyRequests);
+  //   } catch (error) {
+  //     console.error("Error while fetching data:", error);
+  //   }
+  // }, []);
+
+  //-------------------------------------
+
   // API에서 데이터를 받아와서 dataSource1과 dataSource2에 저장합니다.
   const fetchData = useCallback(async (page) => {
-    const result = await axios.get("https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/event/request");
-    const content: IRequest[] = result.data.data.content; // 데이터 타입을 IRequest[]로 지정
+    try {
+      const result = await listApplication();
 
-    const leaveRequests = content.filter((request) => request.eventType === "leave");
-    const dutyRequests = content.filter((request) => request.eventType === "duty");
+      console.log(result); // API 응답 확인
+      console.log("API Response Data:", result.data);
 
-    setDataSource1(leaveRequests);
-    setDataSource2(dutyRequests);
+      if (Array.isArray(result.data?.content)) {
+        const content: IRequest[] = result.data.content;
+
+        const leaveRequests = content.filter((request) => request.eventType === "LEAVE");
+        const dutyRequests = content.filter((request) => request.eventType === "DUTY");
+
+        setDataSource1(leaveRequests);
+        setDataSource2(dutyRequests);
+        console.log("leaveRequests:", leaveRequests);
+        console.log("dutyRequests:", dutyRequests);
+        console.log("Content:", content);
+      } else {
+        console.error("API response is not in the expected format");
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   }, []);
+
+  useEffect(() => {
+    console.log("Updated dataSource1:", dataSource1);
+    console.log("Updated dataSource2:", dataSource2);
+  }, [dataSource1, dataSource2]);
+
+  //-------------------------------
+
+  // const fetchData = useCallback(async (page) => {
+  //   const result = await listApplication();
+  //   const content: IRequest[] = result?.data?.content || [];
+
+  //   const leaveRequests = content.filter((request) => request.eventType === "LEAVE");
+  //   const dutyRequests = content.filter((request) => request.eventType === "DUTY");
+
+  //   setDataSource1(leaveRequests);
+  //   setDataSource2(dutyRequests);
+  //   console.log("API Result:", result);
+
+  //   console.log(dataSource1);
+  //   console.log(dataSource2);
+  // }, []);
 
   useEffect(() => {
     fetchData(page);
@@ -75,6 +148,7 @@ const AdminPage = () => {
       dataIndex: "annualCount",
       key: "annualCount",
       align: "center" as const,
+      // render: (annualCount: number | undefined) => annualCount || "데이터 없음",
     },
     {
       title: "승인/취소",

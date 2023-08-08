@@ -1,6 +1,36 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: "http://Myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// 로그인 api
+export const login = async (email: string, password: string) => {
+  const response = await api.post("/user/login", { email, password });
+  if (response.data.status === 200) {
+    // 토큰을 localStorage에 저장
+    localStorage.setItem("token", response.data.data.accessToken);
+  }
+  return response.data;
+};
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const logout = () => {
+  localStorage.removeItem("token");
+};
 
 interface ApplicationData {
+  userId: number;
   userEmail: string;
   eventId: number;
   userName: string;
@@ -11,7 +41,7 @@ interface ApplicationData {
   orderState: string;
   imgUrl: string;
   createdAt: string;
-  annualCount: number; // 'annualCount'가 숫자형(number)인 것으로 가정
+  annualCount?: number;
 }
 
 interface ListApplicationResponse {
@@ -36,14 +66,13 @@ interface ListApplicationResponse {
   };
 }
 
+// 신청 리스트 api
 export const listApplication = async (): Promise<ListApplicationResponse> => {
   try {
-    const response: AxiosResponse<ListApplicationResponse> = await axios.get(
-      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/event/request"
-    );
+    const response = await api.get("/admin/event/request");
     return response.data;
   } catch (error) {
-    console.error("오류 발생:", error);
+    console.error("Error:", error);
     throw error;
   }
 };
@@ -63,66 +92,94 @@ interface ApprovalResponse {
   };
 }
 
-export const leaveapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
+// 공통된 로직을 처리하기 위한 helper function
+const postApproval = async (path: string, eventId: number, orderState: string): Promise<ApprovalResponse> => {
   try {
-    const response: AxiosResponse<ApprovalResponse> = await axios.post(
-      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/leave/approval",
-      {
-        eventId,
-        orderState: "APPROVED",
-      }
-    );
+    const response = await api.post(path, { eventId, orderState });
     return response.data;
   } catch (error) {
-    console.error("승인 API 호출 중 오류 발생:", error);
+    console.error(`Error during ${orderState} API call:`, error);
     throw error;
   }
+};
+
+// 연차&당직 승인, 취소 api
+export const leaveapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
+  return postApproval("/admin/leave/approval", eventId, "APPROVED");
 };
 
 export const leaverejectApplication = async (eventId: number): Promise<ApprovalResponse> => {
-  try {
-    const response: AxiosResponse<ApprovalResponse> = await axios.post(
-      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/leave/approval",
-      {
-        eventId,
-        orderState: "REJECTED",
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("거절 API 호출 중 오류 발생:", error);
-    throw error;
-  }
+  return postApproval("/admin/leave/approval", eventId, "REJECTED");
 };
 
 export const dutyapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
-  try {
-    const response: AxiosResponse<ApprovalResponse> = await axios.post(
-      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/duty/approval",
-      {
-        eventId,
-        orderState: "APPROVED",
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("승인 API 호출 중 오류 발생:", error);
-    throw error;
-  }
+  return postApproval("/admin/duty/approval", eventId, "APPROVED");
 };
 
 export const dutyrejectApplication = async (eventId: number): Promise<ApprovalResponse> => {
-  try {
-    const response: AxiosResponse<ApprovalResponse> = await axios.post(
-      "https://fd220552-0bf1-4bff-ab2c-50941e7a0832.mock.pstmn.io/admin/duty/approval",
-      {
-        eventId,
-        orderState: "REJECTED",
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("거절 API 호출 중 오류 발생:", error);
-    throw error;
-  }
+  return postApproval("/admin/duty/approval", eventId, "REJECTED");
 };
+
+// export const leaveapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
+//   try {
+//     const response: AxiosResponse<ApprovalResponse> = await axios.post(
+//       "http://myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com/admin/leave/approval",
+//       {
+//         eventId,
+//         orderState: "APPROVED",
+//       }
+//     );
+//     return response.data;
+//   } catch (error) {
+//     console.error("승인 API 호출 중 오류 발생:", error);
+//     throw error;
+//   }
+// };
+
+// export const leaverejectApplication = async (eventId: number): Promise<ApprovalResponse> => {
+//   try {
+//     const response: AxiosResponse<ApprovalResponse> = await axios.post(
+//       "http://myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com/admin/leave/approval",
+//       {
+//         eventId,
+//         orderState: "REJECTED",
+//       }
+//     );
+//     return response.data;
+//   } catch (error) {
+//     console.error("거절 API 호출 중 오류 발생:", error);
+//     throw error;
+//   }
+// };
+
+// export const dutyapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
+//   try {
+//     const response: AxiosResponse<ApprovalResponse> = await axios.post(
+//       "http://myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com/admin/duty/approval",
+//       {
+//         eventId,
+//         orderState: "APPROVED",
+//       }
+//     );
+//     return response.data;
+//   } catch (error) {
+//     console.error("승인 API 호출 중 오류 발생:", error);
+//     throw error;
+//   }
+// };
+
+// export const dutyrejectApplication = async (eventId: number): Promise<ApprovalResponse> => {
+//   try {
+//     const response: AxiosResponse<ApprovalResponse> = await axios.post(
+//       "http://myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com/admin/duty/approval",
+//       {
+//         eventId,
+//         orderState: "REJECTED",
+//       }
+//     );
+//     return response.data;
+//   } catch (error) {
+//     console.error("거절 API 호출 중 오류 발생:", error);
+//     throw error;
+//   }
+// };
