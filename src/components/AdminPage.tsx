@@ -32,42 +32,13 @@ const AdminPage = () => {
   const [rotating, setRotating] = useState(false);
   const [page, setPage] = useState(1);
 
-  // // 새로 작성
-  // const fetchData = useCallback(async (page) => {
-  //   try {
-  //     // API 호출
-  //     const response = await listApplication();
-  //     console.log(response); // API 응답 확인
-  //     console.log("API response Data:", response.data);
-  //     console.log("API response:", response);
-  //     // 응답의 유효성 검사
-  //     if (!response || !Array.isArray(response.data)) {
-  //       console.error("Invalid API response format");
-  //       return;
-  //     }
-
-  //     // 데이터 필터링
-  //     const leaveRequests = response.data.filter((request) => request.eventType === "LEAVE");
-  //     const dutyRequests = response.data.filter((request) => request.eventType === "DUTY");
-
-  //     // 상태 업데이트
-  //     setDataSource1(leaveRequests);
-  //     setDataSource2(dutyRequests);
-
-  //     // 디버깅을 위한 로깅
-  //     console.log("Leave Requests:", leaveRequests);
-  //     console.log("Duty Requests:", dutyRequests);
-  //   } catch (error) {
-  //     console.error("Error while fetching data:", error);
-  //   }
-  // }, []);
-
-  //-------------------------------------
-
   // API에서 데이터를 받아와서 dataSource1과 dataSource2에 저장합니다.
   const fetchData = useCallback(async () => {
     try {
       const result = await listApplication();
+
+      console.log(result); // API 응답 확인
+      console.log("API Response Data:", result.data);
 
       if (Array.isArray(result.data?.content)) {
         const content: IRequest[] = result.data.content;
@@ -77,7 +48,9 @@ const AdminPage = () => {
 
         setDataSource1(leaveRequests);
         setDataSource2(dutyRequests);
-
+        console.log("leaveRequests:", leaveRequests);
+        console.log("dutyRequests:", dutyRequests);
+        console.log("Content:", content);
       } else {
         console.error("API response is not in the expected format");
       }
@@ -87,7 +60,26 @@ const AdminPage = () => {
   }, []);
 
   useEffect(() => {
+    console.log("Updated dataSource1:", dataSource1);
+    console.log("Updated dataSource2:", dataSource2);
   }, [dataSource1, dataSource2]);
+
+  //-------------------------------
+
+  // const fetchData = useCallback(async (page) => {
+  //   const result = await listApplication();
+  //   const content: IRequest[] = result?.data?.content || [];
+
+  //   const leaveRequests = content.filter((request) => request.eventType === "LEAVE");
+  //   const dutyRequests = content.filter((request) => request.eventType === "DUTY");
+
+  //   setDataSource1(leaveRequests);
+  //   setDataSource2(dutyRequests);
+  //   console.log("API Result:", result);
+
+  //   console.log(dataSource1);
+  //   console.log(dataSource2);
+  // }, []);
 
     useEffect(() => {
     fetchData();
