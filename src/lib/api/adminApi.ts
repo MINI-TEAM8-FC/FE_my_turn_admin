@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://Myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com",
+  baseURL: "https://myturn.store",
   headers: {
     "Content-Type": "application/json",
   },
@@ -119,67 +119,3 @@ export const dutyapproveApplication = async (eventId: number): Promise<ApprovalR
 export const dutyrejectApplication = async (eventId: number): Promise<ApprovalResponse> => {
   return postApproval("/admin/duty/approval", eventId, "REJECTED");
 };
-
-// export const leaveapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
-//   try {
-//     const response: AxiosResponse<ApprovalResponse> = await axios.post(
-//       "http://myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com/admin/leave/approval",
-//       {
-//         eventId,
-//         orderState: "APPROVED",
-//       }
-//     );
-//     return response.data;
-//   } catch (error) {
-//     console.error("승인 API 호출 중 오류 발생:", error);
-//     throw error;
-//   }
-// };
-
-// export const leaverejectApplication = async (eventId: number): Promise<ApprovalResponse> => {
-//   try {
-//     const response: AxiosResponse<ApprovalResponse> = await axios.post(
-//       "http://myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com/admin/leave/approval",
-//       {
-//         eventId,
-//         orderState: "REJECTED",
-//       }
-//     );
-//     return response.data;
-//   } catch (error) {
-//     console.error("거절 API 호출 중 오류 발생:", error);
-//     throw error;
-//   }
-// };
-
-// export const dutyapproveApplication = async (eventId: number): Promise<ApprovalResponse> => {
-//   try {
-//     const response: AxiosResponse<ApprovalResponse> = await axios.post(
-//       "http://myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com/admin/duty/approval",
-//       {
-//         eventId,
-//         orderState: "APPROVED",
-//       }
-//     );
-//     return response.data;
-//   } catch (error) {
-//     console.error("승인 API 호출 중 오류 발생:", error);
-//     throw error;
-//   }
-// };
-
-// export const dutyrejectApplication = async (eventId: number): Promise<ApprovalResponse> => {
-//   try {
-//     const response: AxiosResponse<ApprovalResponse> = await axios.post(
-//       "http://myturn-env.eba-kab3caa3.ap-northeast-2.elasticbeanstalk.com/admin/duty/approval",
-//       {
-//         eventId,
-//         orderState: "REJECTED",
-//       }
-//     );
-//     return response.data;
-//   } catch (error) {
-//     console.error("거절 API 호출 중 오류 발생:", error);
-//     throw error;
-//   }
-// };
