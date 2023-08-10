@@ -86,7 +86,6 @@ const AdminPage = () => {
       dataIndex: "annualCount",
       key: "annualCount",
       align: "center" as const,
-      // render: (annualCount: number | undefined) => annualCount || "데이터 없음",
     },
     {
       title: "승인/취소",
@@ -308,7 +307,7 @@ const RotatingSyncOutlined = styled(({ rotating, ...props }: { rotating: boolean
 const LeaveTableWrapper = styled.div`
   border: 1px solid ${theme.colors.green.main};
   border-radius: 4px;
-  width: 600px;
+  width: 700px;
   padding: 30px;
   border-radius: 10px;
   margin-right: 50px;
@@ -318,7 +317,7 @@ const LeaveTableWrapper = styled.div`
 const DutyTableWrapper = styled.div`
   border: 1px solid ${theme.colors.orange.main};
   border-radius: 4px;
-  width: 600px;
+  width: 700px;
   padding: 30px;
   border-radius: 10px;
   margin-left: 50px;
