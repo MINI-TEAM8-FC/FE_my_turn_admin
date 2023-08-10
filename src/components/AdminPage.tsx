@@ -5,7 +5,6 @@ import { SyncOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { theme } from "../styles/theme";
-// import axios from "axios"; // axios를 추가합니다.
 import {
   listApplication,
   leaveapproveApplication,
@@ -15,15 +14,15 @@ import {
 } from "../lib/api/adminApi";
 
 interface IRequest {
+  eventId: number;
   userId: number;
+  userName: string;
   userEmail: string;
   eventType: string;
-  userName: string;
   startDate: string;
   endDate?: string;
+  orderState: string;
   annualCount?: number;
-  eventId: number; // API 응답에서 이벤트 식별자를 반환하는 필드의 이름으로 수정
-  orderState: string; // Added field
 }
 
 const AdminPage = () => {
@@ -242,7 +241,6 @@ const AdminPage = () => {
             pagination={{
               pageSize: 10,
               current: page,
-              // total: totalItems,
               onChange: handlePageChange,
             }}
             rowKey="eventId"
@@ -257,7 +255,6 @@ const AdminPage = () => {
             pagination={{
               pageSize: 10,
               current: page,
-              // total: totalItems,
               onChange: handlePageChange,
             }}
             rowKey="eventId"
@@ -274,7 +271,6 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* height: 100vh; */
 `;
 
 const Container = styled.div`
