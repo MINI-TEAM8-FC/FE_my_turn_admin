@@ -37,20 +37,12 @@ const AdminPage = () => {
     try {
       const result = await listApplication();
 
-      console.log(result); // API 응답 확인
-      console.log("API Response Data:", result.data);
-
-      if (Array.isArray(result.data?.content)) {
-        const content: IRequest[] = result.data.content;
-
-        const leaveRequests = content.filter((request) => request.eventType === "LEAVE");
-        const dutyRequests = content.filter((request) => request.eventType === "DUTY");
+      if (Array.isArray(result)) {
+        const leaveRequests = result.filter((request) => request.eventType === "LEAVE");
+        const dutyRequests = result.filter((request) => request.eventType === "DUTY");
 
         setDataSource1(leaveRequests);
         setDataSource2(dutyRequests);
-        console.log("leaveRequests:", leaveRequests);
-        console.log("dutyRequests:", dutyRequests);
-        console.log("Content:", content);
       } else {
         console.error("API response is not in the expected format");
       }
@@ -60,28 +52,6 @@ const AdminPage = () => {
   }, []);
 
   useEffect(() => {
-    console.log("Updated dataSource1:", dataSource1);
-    console.log("Updated dataSource2:", dataSource2);
-  }, [dataSource1, dataSource2]);
-
-  //-------------------------------
-
-  // const fetchData = useCallback(async (page) => {
-  //   const result = await listApplication();
-  //   const content: IRequest[] = result?.data?.content || [];
-
-  //   const leaveRequests = content.filter((request) => request.eventType === "LEAVE");
-  //   const dutyRequests = content.filter((request) => request.eventType === "DUTY");
-
-  //   setDataSource1(leaveRequests);
-  //   setDataSource2(dutyRequests);
-  //   console.log("API Result:", result);
-
-  //   console.log(dataSource1);
-  //   console.log(dataSource2);
-  // }, []);
-
-    useEffect(() => {
     fetchData();
   }, [fetchData, page]);
 
