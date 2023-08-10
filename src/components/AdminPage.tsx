@@ -65,7 +65,7 @@ const AdminPage = () => {
   //-------------------------------------
 
   // API에서 데이터를 받아와서 dataSource1과 dataSource2에 저장합니다.
-  const fetchData = useCallback(async (page) => {
+  const fetchData = useCallback(async () => {
     try {
       const result = await listApplication();
 
@@ -114,12 +114,12 @@ const AdminPage = () => {
   // }, []);
 
   useEffect(() => {
-    fetchData(page);
+    fetchData();
   }, [fetchData, page]);
 
   const handleRefresh = () => {
     setRotating(true);
-    fetchData(page);
+    fetchData();
     setTimeout(() => setRotating(false), 1000);
   };
 
@@ -272,7 +272,7 @@ const AdminPage = () => {
     }
   };
 
-  const handlePageChange = (page) => {
+  const handlePageChange = (page: number) => {
     setPage(page);
   };
 
