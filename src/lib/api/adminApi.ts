@@ -35,13 +35,10 @@ interface ApplicationData {
   eventId: number;
   userName: string;
   eventType: string;
-  orderId: number;
   startDate: string;
   endDate?: string; // endDate는 선택적(optional)일 수 있으므로 '?'로 표시
   orderState: string;
-  imgUrl: string;
-  createdAt: string;
-  annualCount?: number;
+  annualCount: number;
 }
 
 interface ListApplicationResponse {
@@ -70,7 +67,7 @@ interface ListApplicationResponse {
 export const listApplication = async (): Promise<ListApplicationResponse> => {
   try {
     const response = await api.get("/admin/event/request");
-    return response.data;
+    return response.data.data;
   } catch (error) {
     console.error("Error:", error);
     throw error;
