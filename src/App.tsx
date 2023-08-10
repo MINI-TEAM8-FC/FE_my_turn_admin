@@ -1,7 +1,6 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import Main from "./pages/Main";
 import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
 
 const App = () => {
   return (
