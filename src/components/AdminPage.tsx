@@ -276,7 +276,7 @@ const PageContainer = styled.div`
 const Container = styled.div`
   display: flex;
   position: relative;
-  margin-top: 50px;
+  margin-top: 10px;
 `;
 
 // refresh 버튼 회전
