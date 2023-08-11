@@ -37,8 +37,14 @@ const AdminPage = () => {
       const result = await listApplication();
 
       if (Array.isArray(result)) {
-        const leaveRequests = result.filter((request) => request.eventType === "LEAVE");
-        const dutyRequests = result.filter((request) => request.eventType === "DUTY");
+        const leaveRequests = result.filter(
+          (request) =>
+            request.eventType === "LEAVE" && request.orderState !== "APPROVED" && request.orderState !== "REJECTED"
+        );
+        const dutyRequests = result.filter(
+          (request) =>
+            request.eventType === "DUTY" && request.orderState !== "APPROVED" && request.orderState !== "REJECTED"
+        );
 
         setDataSource1(leaveRequests);
         setDataSource2(dutyRequests);
