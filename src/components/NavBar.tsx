@@ -81,6 +81,7 @@ const UserName = styled.p`
   padding: 5px 0;
   width: 150px;
   font-weight: 600;
+  color: ${(props) => props.theme.colors.white};
   white-space: nowrap; // 줄바꿈을 방지
   overflow: hidden; // 넘치는 텍스트 숨기기
   text-overflow: ellipsis; // '...'으로 텍스트 잘라내기
