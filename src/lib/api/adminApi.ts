@@ -38,7 +38,7 @@ interface ApplicationData {
   startDate: string;
   endDate?: string; // endDate는 선택적(optional)일 수 있으므로 '?'로 표시
   orderState: string;
-  annualCount: number;
+  annualCount?: number;
 }
 
 interface ListApplicationResponse {
@@ -46,17 +46,11 @@ interface ListApplicationResponse {
   msg: string;
   data: {
     content: ApplicationData[]; // 배열 내에 ApplicationData 인터페이스를 사용
-    pageable: {
-      // pageable 관련 인터페이스 작성 (필요하다면)
-    };
     last: boolean;
     totalPages: number;
     totalElements: number;
     first: boolean;
     number: number;
-    sort: {
-      // sort 관련 인터페이스 작성 (필요하다면)
-    };
     size: number;
     numberOfElements: number;
     empty: boolean;
@@ -78,11 +72,11 @@ interface ApprovalResponse {
   status: number;
   msg: string;
   data: {
+    eventId: number;
     userId: number;
     userName: string;
     userEmail: string;
     eventType: string;
-    eventId: number;
     startDate: string;
     endDate: string;
     orderState: string;
