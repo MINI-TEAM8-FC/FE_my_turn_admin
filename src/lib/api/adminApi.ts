@@ -68,7 +68,7 @@ export const listApplication = async (): Promise<ListApplicationResponse> => {
   }
 };
 
-interface ApprovalResponse {
+export interface ApprovalResponse {
   status: number;
   msg: string;
   data: {

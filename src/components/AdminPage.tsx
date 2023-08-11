@@ -6,6 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { theme } from "../styles/theme";
 import {
+  ApprovalResponse,
   listApplication,
   leaveapproveApplication,
   leaverejectApplication,
@@ -150,67 +151,53 @@ const AdminPage = () => {
     },
   ];
 
-  const handleLeaveApprove = async (record: IRequest) => {
+  // 승인, 취소 버튼 클릭시 api통신하는 로직
+  type ApiFunctionType = (eventId: number) => Promise<ApprovalResponse>;
+  const handleAPIResponse = async (apiFunction: ApiFunctionType, record: IRequest) => {
     try {
-      console.log("승인 요청:", record.eventId);
-      const response = await leaveapproveApplication(record.eventId);
-      console.log("승인 API 응답:", response);
+      console.log("요청:", record.eventId);
+      const response = await apiFunction(record.eventId);
 
-      toast.success(`승인되었습니다: ${record.userName}`);
-
-      // 승인 후 데이터 바로 반영
-      setDataSource1((prevData) => prevData.filter((item) => item.eventId !== record.eventId));
+      if (response.status === 200) {
+        toast.success(`처리되었습니다: ${record.userName}`);
+        return true;
+      } else {
+        console.error("API 호출 중 오류 발생:", response);
+        toast.error("처리 중 오류가 발생했습니다.");
+        return false;
+      }
     } catch (error) {
-      console.error("승인 API 호출 중 오류 발생:", error);
-      toast.error("승인 중 오류가 발생했습니다.");
+      console.error("API 호출 중 오류 발생:", error);
+      toast.error("처리 중 오류가 발생했습니다.");
+      return false;
+    }
+  };
+
+  const handleLeaveApprove = async (record: IRequest) => {
+    const isSuccessful = await handleAPIResponse(leaveapproveApplication, record);
+    if (isSuccessful) {
+      setDataSource1((prevData) => prevData.filter((item) => item.eventId !== record.eventId));
     }
   };
 
   const handleLeaveReject = async (record: IRequest) => {
-    try {
-      console.log("거절 요청:", record.eventId);
-      const response = await leaverejectApplication(record.eventId);
-      console.log("거절 API 응답:", response);
-
-      toast.error(`취소되었습니다: ${record.userName}`);
-
-      // 취소 후 데이터 바로 반영
+    const isSuccessful = await handleAPIResponse(leaverejectApplication, record);
+    if (isSuccessful) {
       setDataSource1((prevData) => prevData.filter((item) => item.eventId !== record.eventId));
-    } catch (error) {
-      console.error("거절 API 호출 중 오류 발생:", error);
-      toast.error("거절 중 오류가 발생했습니다.");
     }
   };
 
   const handleDutyApprove = async (record: IRequest) => {
-    try {
-      console.log("승인 요청:", record.eventId);
-      const response = await dutyapproveApplication(record.eventId);
-      console.log("승인 API 응답:", response);
-
-      toast.success(`승인되었습니다: ${record.userName}`);
-
-      // 승인 후 데이터 바로 반영
+    const isSuccessful = await handleAPIResponse(dutyapproveApplication, record);
+    if (isSuccessful) {
       setDataSource2((prevData) => prevData.filter((item) => item.eventId !== record.eventId));
-    } catch (error) {
-      console.error("승인 API 호출 중 오류 발생:", error);
-      toast.error("승인 중 오류가 발생했습니다.");
     }
   };
 
   const handleDutyReject = async (record: IRequest) => {
-    try {
-      console.log("거절 요청:", record.eventId);
-      const response = await dutyrejectApplication(record.eventId);
-      console.log("거절 API 응답:", response);
-
-      toast.error(`취소되었습니다: ${record.userName}`);
-
-      // 취소 후 데이터 바로 반영
+    const isSuccessful = await handleAPIResponse(dutyrejectApplication, record);
+    if (isSuccessful) {
       setDataSource2((prevData) => prevData.filter((item) => item.eventId !== record.eventId));
-    } catch (error) {
-      console.error("거절 API 호출 중 오류 발생:", error);
-      toast.error("거절 중 오류가 발생했습니다.");
     }
   };
 
